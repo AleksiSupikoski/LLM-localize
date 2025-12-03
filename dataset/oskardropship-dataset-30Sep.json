@@ -1,0 +1,404 @@
+[
+  {
+    "superfeature": "Analytics & Consent",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Gate GA include behind consent in Oscar base layout (wrap the existing include with an if).",
+        "user_story": "As a privacy-conscious shopper, I want analytics to load only after I grant consent so my browsing isn’t tracked prematurely.",
+        "use_case": "I deny analytics consent and browse: no GA tags/dataLayer are present. I later grant consent and reload: GA initializes exactly once on page load.",
+        "feature_specification": "Trigger: storefront base template render. Conditions: analytics consent flag present/absent. Behavior: include GA partial only when consent=true; otherwise emit no GA markup or dataLayer. State: consent stored by existing consent mechanism; behavior updates on next load. Acceptance: (1) With consent → GA present and initialized once; (2) Without consent → no GA markup or pushes; (3) Switching consent changes behavior on subsequent page load.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/base.html",
+            "lines": "25-28"
+          },
+          {
+            "path": "oscardropship/templates/oscar/partials/google_analytics.html",
+            "lines": null,
+            "optional": true
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Gate GA include behind consent in UIkit base layout (wrap the existing include with an if).",
+        "user_story": "As a site operator, I want consistent consent handling across all storefront layouts so analytics behavior doesn’t vary by theme.",
+        "use_case": "On the UIkit layout, GA loads only when consent is granted, mirroring the Oscar layout behavior.",
+        "feature_specification": "Trigger: UIkit base template render. Conditions: analytics consent flag. Behavior: conditionally include GA partial; never duplicate includes. State: same consent flag as Oscar layout. Acceptance: (1) Consent granted → GA appears once; (2) No consent → no GA; (3) Behavior matches the Oscar base layout.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/uikit/base.html",
+            "lines": "28-31"
+          },
+          {
+            "path": "oscardropship/templates/oscar/partials/google_analytics.html",
+            "lines": null,
+            "optional": true
+          }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Expose Django messages as JSON (insert just after page scripts and before </body>).",
+        "user_story": "As a front-end developer, I want server flash messages available as JSON so I can render toasts without additional requests.",
+        "use_case": "A page renders with messages; a small script exposes a JSON blob with level, text, and tags for client code to read on load. When there are no messages, nothing visible changes.",
+        "feature_specification": "Trigger: base template render. Conditions: request contains Django messages. Behavior: insert a single JSON object (level, text, tags) at the end of the body for client consumption; no UI markup change. State: none; reflects current request only. Acceptance: (1) JSON present when messages exist; (2) Structure includes level/text/tags; (3) No visible change when empty.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/base.html",
+            "lines": null
+          },
+          {
+            "path": "oscardropship/system/templatetags/json_messages.py",
+            "lines": null,
+            "optional": true
+          },
+          {
+            "path": "oscardropship/templates/uikit/base.html",
+            "lines": "any",
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Search UX",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Echo total results count directly below the SEARCH RESULTS heading.",
+        "user_story": "As a shopper, I want to see how many items match my search so I can decide whether to refine it.",
+        "use_case": "I search for a term; under the heading a small line shows the total results across pages and updates when I change the query.",
+        "feature_specification": "Trigger: search results render. Conditions: total count available from handler. Behavior: render a concise line beneath the heading showing full result count (not just current page). State: none. Acceptance: (1) Reflects total set; (2) Updates when query changes/paginates; (3) Hidden when count is zero and the no-results message is shown.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/search/results.html",
+            "lines": null
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add canonical link on search results to stabilize discovery across pagination and params (in an extrahead block near the top).",
+        "user_story": "As an SEO stakeholder, I want a single canonical URL for a given search so crawlers don’t index duplicates.",
+        "use_case": "On a paginated results view, the head contains one canonical link pointing to page 1 with stable query parameters.",
+        "feature_specification": "Trigger: head render for results page. Conditions: current query/params known. Behavior: emit exactly one canonical link that drops pagination and transient params but preserves the core query. State: none. Acceptance: (1) Canonical strips paging; (2) Keeps query if present; (3) Only one canonical emitted.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/search/results.html",
+            "lines": null
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Emit meta robots 'noindex,follow' when there are zero results (in extrahead via conditional).",
+        "user_story": "As an SEO stakeholder, I want empty search pages not indexed while still allowing crawlers to follow internal links.",
+        "use_case": "A query with zero matches renders a meta robots tag with noindex,follow; non-empty queries do not include the tag.",
+        "feature_specification": "Trigger: results head render. Conditions: total count == 0. Behavior: add <meta name=\"robots\" content=\"noindex,follow\"> only when empty. State: none. Acceptance: (1) Present only for zero results; (2) Absent otherwise; (3) Doesn’t alter other SEO tags.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/search/results.html",
+            "lines": "13-19"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Insert a 'sort by' select (price asc/desc, newest) above the results list container.",
+        "user_story": "As a shopper, I want to sort results by price or recency to find items faster.",
+        "use_case": "I select “Price: Low to High”; the list reorders, and the selection persists as I paginate.",
+        "feature_specification": "Trigger: select change or initial render with sort param. Conditions: supported sort keys (price_asc, price_desc, newest). Behavior: apply ordering and reflect the chosen sort in UI; persist selection via querystring across pagination. State: querystring only. Acceptance: (1) Order changes immediately; (2) Persists across pages; (3) UI shows selected sort.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/search/results.html",
+            "lines": "34-36"
+          },
+          {
+            "path": "oscardropship/templates/oscar/search/partials/pagination.html",
+            "lines": "1-20",
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Catalogue & Availability",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Add 'Out of stock' ribbon within the card media block (inside the first media container).",
+        "user_story": "As a shopper, I want to see availability directly on product cards so I don’t click through to unavailable items.",
+        "use_case": "A sold-out product card shows a small 'Out of stock' ribbon over the image area; in-stock cards show nothing extra.",
+        "feature_specification": "Trigger: product card render. Conditions: availability from strategy indicates not purchasable. Behavior: overlay ribbon inside media area without shifting layout; accessible text. State: none. Acceptance: (1) Shown only when unavailable; (2) No layout shift; (3) Readable in grid and on mobile.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/uikit/wagtail/partials/product_small.html",
+            "lines": "4-12"
+          },
+          {
+            "path": "oscardropship/custom_oscar/partner/strategy.py",
+            "lines": "340-371",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Keep short category URLs by returning the compact route in the override method.",
+        "user_story": "As a merchandiser, I want compact category links that are easy to share and remain stable.",
+        "use_case": "Category links render as a short slug-and-id form rather than long hierarchical paths; existing long links still resolve.",
+        "feature_specification": "Trigger: category link generation. Conditions: category object available. Behavior: return compact route (slug + pk) from model override; visible name stays unchanged. State: none. Acceptance: (1) Links use short form; (2) Legacy paths still resolve; (3) No change to visible category names.",
+        "file_paths": [
+          {
+            "path": "oscardropship/custom_oscar/catalogue/abstract_models.py",
+            "lines": "18-30"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Checkout / UX & Anti-spam",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Add an invisible honeypot field to the user address form and validate server-side.",
+        "user_story": "As a store owner, I want to reduce bot spam on checkout forms without impacting real customers.",
+        "use_case": "Bots that fill hidden fields are rejected server-side; human users see no change and can submit normally.",
+        "feature_specification": "Trigger: address form render and submit. Conditions: hidden honeypot field present; submission value checked server-side. Behavior: if honeypot non-empty → treat as spam and stop processing; else proceed. State: none. Acceptance: (1) Legit users aren’t blocked; (2) Bot-filled honeypot returns validation error; (3) No visual layout change.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/checkout/user_address_form.html",
+            "lines": "19-31"
+          },
+          {
+            "path": "oscardropship/custom_oscar/checkout/views.py",
+            "lines": "37-56",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Surface PAYPAL_CLIENT_ID in checkout payment context (ensure setting is passed to template).",
+        "user_story": "As a shopper, I want the PayPal button to initialize reliably so I can complete checkout.",
+        "use_case": "The payment page exposes the configured PayPal client ID; if missing, the PayPal button is disabled with a clear message.",
+        "feature_specification": "Trigger: payment step view render. Conditions: PAYPAL client id setting present/absent. Behavior: pass client id to template for SDK init; when missing, disable PayPal UI or show fallback. State: none. Acceptance: (1) Page contains expected client id when configured; (2) Missing id produces safe fallback and no duplicate init; (3) No console errors on init.",
+        "file_paths": [
+          {
+            "path": "oscardropship/custom_oscar/checkout/views.py",
+            "lines": "29-35"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Dashboard / Orders & Reporting",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Add 'Gross margin' column next to 'Total incl. tax' (header + per-row cell).",
+        "user_story": "As a staff user, I want to see gross margin per order in the report so I can evaluate performance quickly.",
+        "use_case": "In the orders report, a new 'Gross margin' column appears next to 'Total incl. tax', with values formatted like other numeric columns.",
+        "feature_specification": "Trigger: order report table render. Conditions: per-row margin data available/derivable. Behavior: add single header and one value cell per order; alignment and formatting match numeric columns. State: none. Acceptance: (1) Header appears once; (2) Each row shows a formatted margin; (3) Column aligns with existing numeric columns.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/dashboard/reports/partials/order_report.html",
+            "lines": "12-14"
+          },
+          {
+            "path": "oscardropship/templates/oscar/dashboard/reports/partials/order_report.html",
+            "lines": "16-21"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "UI Feedback (Alerts)",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Normalize tag mapping (ensure 'error' => 'danger') in storefront alerts.",
+        "user_story": "As a shopper, I want consistent alert colors so error messages are immediately recognizable.",
+        "use_case": "Server messages with level 'error' render using the 'danger' visual style; other levels are unchanged.",
+        "feature_specification": "Trigger: alert partial render. Conditions: level='error'. Behavior: map to 'danger' class. State: none. Acceptance: (1) Error → danger; (2) Other levels unaffected; (3) No duplicate classes.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/partials/alert_messages.html",
+            "lines": "14-14"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Ensure storefront alert close buttons render within the alert div (fix markup nesting).",
+        "user_story": "As a shopper, I want the close button to dismiss only the alert it belongs to and align correctly.",
+        "use_case": "Each alert’s close control is inside the alert container, inheriting styles and dismissing only that alert.",
+        "feature_specification": "Trigger: alert markup render. Conditions: close button present. Behavior: nest close control within alert element. State: none. Acceptance: (1) Visual alignment correct; (2) Clicking dismisses only that alert; (3) No orphaned close controls.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/partials/alert_messages.html",
+            "lines": "15-16"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Normalize tag mapping in dashboard alerts too.",
+        "user_story": "As a staff user, I want dashboard alerts to follow the same level-to-style rules as the storefront.",
+        "use_case": "Dashboard 'error' alerts render as 'danger', matching storefront behavior.",
+        "feature_specification": "Trigger: dashboard alert partial render. Conditions: level='error'. Behavior: map to 'danger'. State: none. Acceptance: (1) Styling mirrors storefront; (2) Info/warning/success unchanged; (3) Markup remains consistent.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/dashboard/partials/alert_messages.html",
+            "lines": "1-20"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "SEO & Tracking",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Provide a default page_type block in Oscar layout so templates can override it (put block at top of layout).",
+        "user_story": "As an analyst, I want each page to declare its type so analytics can segment by page category.",
+        "use_case": "Child templates override the page_type block; pages without overrides default to 'page'.",
+        "feature_specification": "Trigger: layout render. Conditions: block override optional. Behavior: define default page_type='page' near top; allow child templates to override. State: none. Acceptance: (1) Default emitted once; (2) Child overrides take effect; (3) Only one value emitted.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/layout.html",
+            "lines": "1-4"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Emit GA page_type (and push a page-specific dataLayer) immediately after GA config.",
+        "user_story": "As an analyst, I want analytics to receive the current page_type on every page load.",
+        "use_case": "Right after GA initializes, a dataLayer push sends the current page_type value (overridable by child templates).",
+        "feature_specification": "Trigger: GA config execution. Conditions: GA present and page_type available. Behavior: push page_type once to dataLayer immediately after init. State: none. Acceptance: (1) Exactly one push per load; (2) Uses overridable page_type; (3) No duplicate pushes.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/partials/google_analytics.html",
+            "lines": "1-20"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Theming / Navigation",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Add a compact mini-basket item count badge inside the primary nav link.",
+        "user_story": "As a shopper, I want to see my basket item count at a glance from the main navigation.",
+        "use_case": "When I add/remove items, the count badge inside the basket link updates; it hides when the count is zero.",
+        "feature_specification": "Trigger: nav render; basket updates. Conditions: current basket quantity. Behavior: render compact badge inside primary basket link; hide at zero; include aria-label for screen readers. State: none. Acceptance: (1) Updates live; (2) Fits without wrapping; (3) Accessible label present.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/oscar/layout.html",
+            "lines": "21-33"
+          },
+          {
+            "path": "oscardropship/templates/oscar/partials/mini_basket.html",
+            "lines": "1-20",
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Routing / URLs",
+    "features": [
+      {
+        "tag": "addition",
+        "feature_desc": "Add '/healthz' endpoint for load-balancer probes (204 No Content).",
+        "user_story": "As an operator, I want a lightweight health endpoint so the load balancer can check liveness without hitting the database.",
+        "use_case": "The LB calls /healthz and receives HTTP 204 with an empty body.",
+        "feature_specification": "Trigger: GET /healthz. Conditions: no auth required. Behavior: return 204 No Content; avoid DB or template allocations. State: none. Acceptance: (1) Status 204; (2) Empty body; (3) Publicly reachable.",
+        "file_paths": [
+          {
+            "path": "config/urls.py",
+            "lines": "26-37"
+          },
+          {
+            "path": "oscardropship/system/views.py",
+            "lines": "1-8"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Payments / Webhook & Security",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Restrict any future payments webhook URL to POST only inside custom shop router.",
+        "user_story": "As a security-minded developer, I want the payments webhook to accept only POST so other methods are rejected.",
+        "use_case": "Valid POSTs are processed; GET/PUT/DELETE return 405 Method Not Allowed.",
+        "feature_specification": "Trigger: webhook route registration. Conditions: route lives under custom shop router. Behavior: accept POST only; return 405 for others. State: none. Acceptance: (1) POST succeeds with valid payload; (2) Non-POST → 405; (3) Route correctly namespaced.",
+        "file_paths": [
+          {
+            "path": "oscardropship/custom_oscar/config.py",
+            "lines": "7-20"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Before persisting PayPal payloads, verify signature using transmission headers.",
+        "user_story": "As a payments engineer, I want only authentic PayPal webhooks to be stored to prevent fraudulent events.",
+        "use_case": "On receiving a webhook, the handler verifies the signature against the raw body and headers; invalid messages are rejected and not saved.",
+        "feature_specification": "Trigger: PayPal webhook receipt. Conditions: transmission headers and raw body available. Behavior: verify signature; on success, persist event once; on failure, reject and do not persist. State: idempotency/dup-guard as existing. Acceptance: (1) Valid → stored once; (2) Invalid → rejected with correct HTTP status; (3) No side-effects for invalid events.",
+        "file_paths": [
+          {
+            "path": "oscardropship/custom_oscar/checkout/views.py",
+            "lines": "64-82"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Newsletter / GDPR",
+    "features": [
+      {
+        "tag": "addition",
+        "feature_desc": "Add a GDPR consent checkbox to the newsletter subscribe form and enforce it server-side.",
+        "user_story": "As a subscriber, I want to explicitly consent before joining the newsletter.",
+        "use_case": "The subscribe form includes a required consent checkbox; submitting unchecked shows a short validation message.",
+        "feature_specification": "Trigger: subscribe form render/submit. Conditions: checkbox present. Behavior: require explicit check; server validation enforces consent. State: none. Acceptance: (1) Checkbox required; (2) Server blocks unchecked; (3) Clear validation message when missing.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/newsletter/subscription_subscribe.html",
+            "lines": "19-24"
+          }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add rel='noopener' and absolute URLs in newsletter message template links for security/SEO.",
+        "user_story": "As a marketer, I want newsletter links to be safe and resolve correctly regardless of client base URLs.",
+        "use_case": "All links in outgoing newsletter messages use absolute URLs and include rel=\"noopener\" on external-style anchors.",
+        "feature_specification": "Trigger: newsletter message template render. Conditions: link generation. Behavior: ensure absolute URLs; add rel=\"noopener\". State: none. Acceptance: (1) Links resolve without relying on client base URL; (2) rel=\"noopener\" present; (3) Visual presentation unchanged.",
+        "file_paths": [
+          {
+            "path": "oscardropship/templates/newsletter/message/message.html",
+            "lines": "20-30"
+          }
+        ]
+      }
+    ]
+  }
+]

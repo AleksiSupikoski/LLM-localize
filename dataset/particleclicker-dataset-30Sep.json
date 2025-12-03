@@ -1,0 +1,624 @@
+[
+  {
+    "superfeature": "Workers",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show '+1 hired' microtoast next to worker hire button.",
+        "user_story": "As a player, I want instant visual feedback after hiring so I know the action succeeded without breaking my flow.",
+        "use_case": "I tap Hire for a worker in the HR list; a small '+1 hired' appears near that button and fades away while the list remains interactive.",
+        "feature_specification": "Trigger: successful hire action. Conditions: hire request resolves OK. Behavior: microtoast appears near tapped button, fades ~800ms, non-blocking. State: none persisted. Acceptance: does not overlap controls; not shown on failure; readable on small screens.",
+        "file_paths": [
+          { "path": "index.html", "lines": "147-153" },
+          { "path": "js/ui.js", "lines": null, "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Color worker cost red when funding is insufficient.",
+        "user_story": "As a player, I want unaffordable hires to be clearly marked so I don’t waste taps.",
+        "use_case": "My Funding is below the price; the price text is shown in an error color and a short hint explains 'Insufficient funds' until my Funding rises.",
+        "feature_specification": "Trigger: render of worker row or Funding change. Conditions: Funding < hire price. Behavior: price in error color; hint on hover/tap. State: style reverts immediately when affordable. Acceptance: no flicker; hint readable; color meets contrast ratio.",
+        "file_paths": [
+          { "path": "index.html", "lines": "147-153" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Display a 'NEW' badge on newly unlocked workers.",
+        "user_story": "As a player, I want new worker types to stand out so I notice progression opportunities.",
+        "use_case": "A worker first appears from the workers data; it shows a compact 'NEW' badge that disappears after my first hire or when I dismiss it.",
+        "feature_specification": "Trigger: worker becomes available. Conditions: first-time visibility for that worker type. Behavior: show compact 'NEW' badge. State: dismiss after first hire/dismiss action; remembered for session. Acceptance: no layout shift; badge accessible.",
+        "file_paths": [
+          { "path": "index.html", "lines": "147-153" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add new worker 'Physicist' with higher data output.",
+        "user_story": "As a progression-focused player, I want a higher-tier worker that accelerates data generation.",
+        "use_case": "The 'Physicist' entry appears in the hiring list with higher output and a price; when I hire one, the action is also tracked by HR analytics.",
+        "feature_specification": "Trigger: game loads workers list. Conditions: workers.json defines 'Physicist'. Behavior: render entry with price/output; hires increment output rate. State: worker count persisted. Acceptance: output > prior tier; shows in telemetry.",
+        "file_paths": [
+          { "path": "json/workers.json", "lines": null },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show a tooltip on the Hire button explaining cost scaling.",
+        "user_story": "As a new player, I want to understand why hire prices rise so the economy feels predictable.",
+        "use_case": "I hover or tap-and-hold on Hire and a tooltip says 'Each hire increases the price slightly' without blocking the button.",
+        "feature_specification": "Trigger: hover or tap-and-hold on Hire. Conditions: button visible. Behavior: non-blocking tooltip copy about price scaling. State: none. Acceptance: does not intercept click; closes on mouseout/outside tap.",
+        "file_paths": [
+          { "path": "index.html", "lines": "146-152" },
+          { "path": "js/ui.js", "lines": null, "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Disable the Hire button while a hire request is processing.",
+        "user_story": "As a player, I want to avoid accidental double-purchases while the game processes my action.",
+        "use_case": "I tap Hire; the button switches to 'Hiring…' with a spinner and ignores extra taps until it re-enables after success or failure.",
+        "feature_specification": "Trigger: Hire clicked. Conditions: async request in flight. Behavior: disable button, show 'Hiring…' + spinner; ignore further taps. State: restore original state on resolve/reject. Acceptance: exactly one purchase per tap; latency-safe.",
+        "file_paths": [
+          { "path": "index.html", "lines": "146-152" },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show total hired count badge in HR header.",
+        "user_story": "As a player, I want a quick overview of how many workers I have.",
+        "use_case": "A small badge in the HR header updates to the total hired count across worker types and remains readable on small screens.",
+        "feature_specification": "Trigger: worker count changes or HR header render. Conditions: any hires change. Behavior: badge displays sum across types, live updates. State: derived only. Acceptance: no overlap/clipping on narrow widths.",
+        "file_paths": [
+          { "path": "index.html", "lines": "140-150" },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Achievements",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show a completion progress bar in achievements area.",
+        "user_story": "As a completionist, I want to see overall achievement progress at a glance.",
+        "use_case": "Opening the Achievements modal shows a labeled progress bar and a numeric summary that updates as I unlock items.",
+        "feature_specification": "Trigger: achievements view open/refresh. Conditions: total and completed counts known. Behavior: render horizontal bar + numeric summary. State: derived only. Acceptance: scales to narrow screens; labels remain readable.",
+        "file_paths": [
+          { "path": "index.html", "lines": "253-257" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add new achievement 'Hire 10 Physicists'.",
+        "user_story": "As a goal-driven player, I want achievements that reward investing in new worker tiers.",
+        "use_case": "After I hire 10 Physicists, a standard unlock toast appears and the achievement remains marked as completed thereafter.",
+        "feature_specification": "Trigger: hire count for Physicist changes. Conditions: total >= 10. Behavior: mark achievement complete; show unlock toast once. State: persisted as completed. Acceptance: no duplicate unlocks; visible icon/title/description.",
+        "file_paths": [
+          { "path": "json/achievements.json", "lines": null },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a 'share' icon next to unlocked achievements.",
+        "user_story": "As a social player, I want to share my unlocked achievements with one tap.",
+        "use_case": "I tap the share icon beside a completed achievement and a share sheet opens with a prefilled message referencing the achievement.",
+        "feature_specification": "Trigger: tap share icon on unlocked row. Conditions: achievement completed. Behavior: open OS share or fallback copy text. State: none. Acceptance: prefilled message includes achievement name; non-blocking; stays on page.",
+        "file_paths": [
+          { "path": "index.html", "lines": "234-257" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/ui.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Sort achievements by completion status, completed last.",
+        "user_story": "As a player, I want incomplete achievements listed first so I can focus on what’s left.",
+        "use_case": "The achievements list reorders to show locked/in-progress items first; when one completes, it moves down automatically.",
+        "feature_specification": "Trigger: list render or status change. Conditions: per-item completion state known. Behavior: sort incomplete→completed; newest completed last. State: transient order. Acceptance: order updates immediately; stable within groups.",
+        "file_paths": [
+          { "path": "index.html", "lines": "234-257" },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add 'Hide completed' toggle in achievements panel.",
+        "user_story": "As a player, I want to hide finished items to reduce clutter.",
+        "use_case": "I enable 'Hide completed' and only incomplete achievements remain visible until I turn the toggle off.",
+        "feature_specification": "Trigger: toggle change. Conditions: list supports filtering. Behavior: filter out completed items while enabled. State: session-scoped preference. Acceptance: persists for session; no layout jumps.",
+        "file_paths": [
+          { "path": "index.html", "lines": "234-244" },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Resources",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Add 'Energy' resource next to Data, Reputation, Funding.",
+        "user_story": "As a player, I want an additional resource that interacts with existing systems to deepen strategy.",
+        "use_case": "An 'Energy' value is displayed in the header alongside Data, Reputation, and Funding and updates live with the same compact formatting.",
+        "feature_specification": "Trigger: header render; ticks. Conditions: energy value available. Behavior: show label/value; live updates. State: part of game state. Acceptance: alignment matches others; compact number formatting consistent.",
+        "file_paths": [
+          { "path": "index.html", "lines": "114-130" },
+          { "path": "js/game.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add tooltips explaining how each resource changes.",
+        "user_story": "As a player, I want quick explanations for each resource so I understand what affects them.",
+        "use_case": "On hover or tap-and-hold over a resource label, a tooltip describes typical increases and decreases without blocking nearby controls.",
+        "feature_specification": "Trigger: hover/tap-and-hold on resource label. Conditions: label visible. Behavior: show concise explanation; non-blocking. State: none. Acceptance: hides on mouseout/outside tap; accessible on touch/desktop.",
+        "file_paths": [
+          { "path": "index.html", "lines": "114-126" },
+          { "path": "js/ui.js", "lines": null, "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Format Funding using compact notation (e.g., $1.2k).",
+        "user_story": "As a player, I want monetary values to be readable even when they get large.",
+        "use_case": "Funding values render using compact notation with one decimal (e.g., '1.2k', '3.4M') while smaller values remain unshortened.",
+        "feature_specification": "Trigger: Funding value render/update. Conditions: value ≥1,000 uses compact. Behavior: 1 decimal, half-up; trim trailing .0. State: none. Acceptance: consistent across header; <1,000 unchanged.",
+        "file_paths": [
+          { "path": "js/app.js", "lines": "26-30" },
+          { "path": "js/helpers.js", "lines": "22-45", "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add thousand separators to Reputation and Data in the header.",
+        "user_story": "As a player, I want large numbers to be easy to parse at a glance.",
+        "use_case": "Reputation and Data display with thousand separators (e.g., 12,345) without flicker during rapid updates.",
+        "feature_specification": "Trigger: value render/update. Conditions: integer formatting applied. Behavior: add thousand separators; retain compact style if already in use. State: none. Acceptance: no flicker under rapid updates.",
+        "file_paths": [
+          { "path": "js/helpers.js", "lines": "22-45" }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Research",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show spinner and disable research buttons while purchasing.",
+        "user_story": "As a player, I want clear feedback and no accidental double-buys when I purchase research.",
+        "use_case": "I buy a research item; the button becomes 'Purchasing…' with a small spinner and re-enables only after success or error.",
+        "feature_specification": "Trigger: purchase initiated. Conditions: request pending. Behavior: disable button; label 'Purchasing…' + spinner; ignore extra taps. State: revert on resolve. Acceptance: single purchase per action; restores correctly on error.",
+        "file_paths": [
+          { "path": "index.html", "lines": "87-95" },
+          { "path": "js/app.js", "lines": null, "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add an info popover describing each research effect.",
+        "user_story": "As a curious player, I want a quick way to read what a research does before I commit.",
+        "use_case": "I tap an info control next to a research entry; a popover appears with description and effect, and closes on outside tap.",
+        "feature_specification": "Trigger: tap/hover info control. Conditions: entry visible. Behavior: show popover with description/effect; close on outside tap. State: none. Acceptance: does not block purchase; positions within viewport.",
+        "file_paths": [
+          { "path": "index.html", "lines": "88-96" },
+          { "path": "js/ui.js", "lines": "any", "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add research 'Quantum Computing' that speeds up data generation.",
+        "user_story": "As a player, I want research options that visibly increase my data rate.",
+        "use_case": "A 'Quantum Computing' item appears in the list with cost and yield; on purchase, it boosts generation and is logged to Research analytics.",
+        "feature_specification": "Trigger: research list load. Conditions: item defined. Behavior: show title/description/cost; on purchase, increase data rate by configured % and emit analytics. State: persisted unlocked state. Acceptance: effect measurable in rate.",
+        "file_paths": [
+          { "path": "json/research.json", "lines": null },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add a filter toggle 'Affordable only' above the Research list.",
+        "user_story": "As a player, I want to filter research to what I can currently afford.",
+        "use_case": "I enable 'Affordable only'; the list immediately hides entries whose cost exceeds my available resources and updates as resources change.",
+        "feature_specification": "Trigger: toggle change or resource updates. Conditions: compare each item’s cost to current resources. Behavior: show only items with cost less available resources; keep the filter applied as values change. State: session-scoped preference. Acceptance: updates without noticeable lag; no layout jump; filter state clearly indicated; immediate: stays in sync with resource changes.",
+        "file_paths": [
+          { "path": "index.html", "lines": "84-96" },
+          { "path": "js/app.js", "lines": "77-90" },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a small 'i' icon next to each Research to open a detail tooltip.",
+        "user_story": "As a player, I want a lightweight tooltip with essential info without leaving the list.",
+        "use_case": "I hover or tap the 'i' icon; a text tooltip with the research description appears and does not obscure the purchase button.",
+        "feature_specification": "Trigger: hover/tap on 'i'. Conditions: item visible. Behavior: show text tooltip; close on out/outside tap. State: none. Acceptance: non-blocking; accessible on touch/desktop.",
+        "file_paths": [
+          { "path": "index.html", "lines": "88-96" },
+          { "path": "js/ui.js", "lines": "any", "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Upgrades",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show unmet research requirements under each upgrade.",
+        "user_story": "As a player, I want to know exactly why an upgrade is locked.",
+        "use_case": "A locked upgrade shows 'Requires: {items}' under its description, updating in real time when requirements are met.",
+        "feature_specification": "Trigger: render or state change. Conditions: prerequisites unmet. Behavior: display single-line 'Requires: …'. State: derived. Acceptance: updates immediately when requirements satisfied.",
+        "file_paths": [
+          { "path": "index.html", "lines": "171-179" },
+          { "path": "js/app.js", "lines": "any", "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Disable upgrade purchase button when requirements are unmet.",
+        "user_story": "As a player, I want the UI to prevent purchases until I meet prerequisites.",
+        "use_case": "If requirements aren’t met, the Buy button is disabled with a short hint; it becomes clickable immediately when conditions are satisfied.",
+        "feature_specification": "Trigger: render or prereq change. Conditions: unmet prereqs. Behavior: disable button; show hint text. State: derived. Acceptance: re-enables instantly on unlock; no accidental purchases.",
+        "file_paths": [
+          { "path": "index.html", "lines": "171-179" }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add upgrade 'Super Microscope' that doubles click efficiency.",
+        "user_story": "As a player, I want upgrades that make manual clicking feel powerful right away.",
+        "use_case": "After buying 'Super Microscope', each detector click yields twice the data and the change is visible on the next click.",
+        "feature_specification": "Trigger: purchase success. Conditions: sufficient resources. Behavior: set click multiplier ×2. State: persisted upgrade owned. Acceptance: next click shows doubled data; description/cost visible pre-purchase.",
+        "file_paths": [
+          { "path": "json/upgrades.json", "lines": null },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Group upgrades by category with collapsible headers.",
+        "user_story": "As a player, I want upgrades organized by category so long lists stay manageable.",
+        "use_case": "I tap a category header to collapse/expand its group; the open/closed state is remembered during the session.",
+        "feature_specification": "Trigger: header tap. Conditions: categories defined. Behavior: toggle group visibility. State: per-session remembered. Acceptance: smooth toggle; no content overlap; remembers last state.",
+        "file_paths": [
+          { "path": "index.html", "lines": "172-178" },
+          { "path": "json/upgrades.json", "lines": "any", "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show a lock icon on upgrades that require prior research.",
+        "user_story": "As a player, I want a clear visual cue that an upgrade is gated by research.",
+        "use_case": "Locked upgrades display a small lock glyph with a hint like 'Locked' that disappears without causing layout shift once unlocked.",
+        "feature_specification": "Trigger: render. Conditions: upgrade locked. Behavior: prepend lock glyph with short hint on hover/tap. State: derived. Acceptance: no layout jump when icon hides; accessible target size.",
+        "file_paths": [
+          { "path": "index.html", "lines": "172-178" },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show delta (+%) preview when hovering an upgrade.",
+        "user_story": "As a player, I want to preview the benefit before I spend resources.",
+        "use_case": "On hover or tap-and-hold, a small overlay near the upgrade shows '+25% output' or similar without blocking the Buy button.",
+        "feature_specification": "Trigger: hover/tap-and-hold on upgrade. Conditions: prediction available. Behavior: show small overlay with expected gain. State: none. Acceptance: non-blocking; positioned near item; hides on out/outside tap.",
+        "file_paths": [
+          { "path": "index.html", "lines": "172-178" },
+          { "path": "js/ui.js", "lines": null, "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Game Loop & UI",
+    "features": [
+      {
+        "tag": "addition",
+        "feature_desc": "Add a Pause/Resume button in the navbar.",
+        "user_story": "As a player, I want to pause the game to stop timers and counters when I step away.",
+        "use_case": "I tap 'Pause' in the top bar; a brief confirmation appears, timers halt, and an analytics event records the toggle.",
+        "feature_specification": "Trigger: pause toggle click. Conditions: none. Behavior: toggles paused state; freezes timers/counters; shows brief toast; logs analytics. State: paused boolean. Acceptance: resumes cleanly; UI labels switch 'Pause'/'Resume'.",
+        "file_paths": [
+          { "path": "index.html", "lines": "40-60" },
+          { "path": "js/app.js", "lines": "74-90" },
+          { "path": "js/game.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Flash detector canvas briefly when clicked.",
+        "user_story": "As a player, I want a subtle visual flash on clicks to confirm my action.",
+        "use_case": "When I click the detector canvas, it flashes for ~150ms (respecting reduced-motion) without disrupting event rendering.",
+        "feature_specification": "Trigger: detector click. Conditions: prefers-reduced-motion respected. Behavior: brief (100–200ms) flash effect. State: none. Acceptance: no interference with event drawing; disabled if reduced-motion.",
+        "file_paths": [
+          { "path": "index.html", "lines": "107-113" },
+          { "path": "js/detector.js", "lines": "any" },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a 'Copy stats to clipboard' button in Statistics modal.",
+        "user_story": "As a player, I want to copy visible statistics to share or analyze.",
+        "use_case": "Inside the Statistics modal, I tap 'Copy stats'; the current stats are copied as plain text and a success message appears.",
+        "feature_specification": "Trigger: 'Copy stats' click. Conditions: Clipboard API available; fallback provided. Behavior: copy visible stats text; show success toast. State: none. Acceptance: fallback instruction shown if blocked.",
+        "file_paths": [
+          { "path": "index.html", "lines": "240-252" },
+          { "path": "js/app.js", "lines": "158-160" },
+          { "path": "js/ui.js", "lines": "any", "optional": true },
+          { "path": "css/style.css", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show an unsaved-changes asterisk next to 'Save Now' when autosave is off.",
+        "user_story": "As a player, I want a clear indicator when I have unsaved progress.",
+        "use_case": "With autosave off and after changes, 'Save now*' appears with a short hint; the asterisk clears immediately after a manual save.",
+        "feature_specification": "Trigger: change since last save with autosave off. Conditions: dirty state = true. Behavior: append asterisk; show hint on hover/tap. State: clears on save. Acceptance: updates instantly; no duplicate indicators.",
+        "file_paths": [
+          { "path": "index.html", "lines": "47-55" },
+          { "path": "js/storage.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a 'Copy stats' button to the Statistics modal.",
+        "user_story": "As a player, I want a one-tap way to copy the stats list.",
+        "use_case": "A visible 'Copy stats' button copies the modal’s list text and confirms success with a non-blocking message.",
+        "feature_specification": "Trigger: 'Copy stats' click. Conditions: same as clipboard feature. Behavior: copy list text; non-blocking confirmation. State: none. Acceptance: success/fallback handling mirrors above.",
+        "file_paths": [
+          { "path": "index.html", "lines": "246-257" },
+          { "path": "js/app.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Debounce window resize handler to improve performance.",
+        "user_story": "As a player, I want the UI to remain smooth while resizing the window.",
+        "use_case": "Resize-driven layout work is debounced (~150ms) so the detector canvas and columns resize cleanly after dragging stops.",
+        "feature_specification": "Trigger: window resize. Conditions: continuous events throttled. Behavior: ~150ms debounce wraps layout work. State: timer handle only. Acceptance: visual elements settle correctly; no lag after stop.",
+        "file_paths": [
+          { "path": "js/app.js", "lines": "1-20" },
+          { "path": "js/ui.js", "lines": "any" }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Detector",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Make detector info open a collapsible side panel.",
+        "user_story": "As a player, I want to read detector info without losing the main view.",
+        "use_case": "I tap the info control; instead of a modal, a right-hand panel slides in with detector information and closes on outside tap or via a close icon.",
+        "feature_specification": "Trigger: info control click. Conditions: sidebar hidden. Behavior: slide-in right panel; dismiss on outside tap/close icon. State: open/closed. Acceptance: works on mobile widths; nav remains accessible.",
+        "file_paths": [
+          { "path": "index.html", "lines": "113-117" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/ui.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Show richer hover tooltip for detector components.",
+        "user_story": "As a player, I want to learn what each detector component does while exploring the canvas.",
+        "use_case": "Hovering or tap-and-holding a component shows a tooltip with its name and a one-line explanation positioned to avoid the center of the canvas.",
+        "feature_specification": "Trigger: hover/tap-hold over component. Conditions: component under pointer. Behavior: tooltip with name + one-line explainer; avoid center occlusion. State: none. Acceptance: hides on out/outside tap.",
+        "file_paths": [
+          { "path": "js/detector.js", "lines": "159-165" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "js/ui.js", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Histogram",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Compact histogram axis ticks (e.g., 1.2k).",
+        "user_story": "As a player, I want histogram axes that stay readable with large values.",
+        "use_case": "When counts grow large, Y-axis tick labels render in compact form (e.g., 1.2k) while small values remain unshortened.",
+        "feature_specification": "Trigger: axis render/update. Conditions: tick value ≥ 1,000 uses compact. Behavior: 1-decimal compact labels; small values unchanged. State: none. Acceptance: no label overlap; spacing even.",
+        "file_paths": [
+          { "path": "js/histogram.js", "lines": "43-49" }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a hover tooltip for histogram bars.",
+        "user_story": "As a player, I want to see exact bin ranges and counts on demand.",
+        "use_case": "Hovering or tap-and-holding a bar shows a tooltip like 'x–y: n' near the bar that hides on pointer out or outside tap.",
+        "feature_specification": "Trigger: hover/tap-hold over bar. Conditions: bar under pointer. Behavior: show 'x–y: n' near bar; avoid covering labels. State: none. Acceptance: hides on out/outside tap.",
+        "file_paths": [
+          { "path": "js/histogram.js", "lines": "89-95" }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add log scale option for histogram Y axis.",
+        "user_story": "As a player, I want to switch to a log scale when distributions are skewed.",
+        "use_case": "I toggle 'Log scale' and the Y axis recomputes on a logarithmic scale, handling zeros gracefully and keeping tick labels readable.",
+        "feature_specification": "Trigger: toggle change. Conditions: data includes zeros handled via offset/hidden bins. Behavior: recompute Y using log; redraw axes/bars. State: log-enabled flag. Acceptance: ticks readable; zeros handled gracefully.",
+        "file_paths": [
+          { "path": "js/histogram.js", "lines": "1-20" }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Add a reset zoom button to histogram.",
+        "user_story": "As a player, I want to quickly return to the original histogram view after zooming/panning.",
+        "use_case": "I click 'Reset zoom' and the chart restores its original domain and removes any panning/zoom transforms without overlapping the plot.",
+        "feature_specification": "Trigger: reset button click. Conditions: zoom/pan active. Behavior: restore initial domains; clear transforms. State: none. Acceptance: control visible; does not overlap plot; restores precisely.",
+        "file_paths": [
+          { "path": "js/histogram.js", "lines": "60-80" },
+          { "path": "index.html", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Storage & Persistence",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show last-saved timestamp tooltip in Save menu.",
+        "user_story": "As a player, I want to see precisely when my game last saved.",
+        "use_case": "I hover or tap-and-hold on the 'Saved:' area in the Save menu and a tooltip shows the full date and time including seconds.",
+        "feature_specification": "Trigger: hover/tap-hold on 'Saved:' area. Conditions: last-saved time known. Behavior: show full timestamp tooltip; update after each save. State: persisted last-saved. Acceptance: appears quickly; readable format.",
+        "file_paths": [
+          { "path": "index.html", "lines": "41-53" },
+          { "path": "js/storage.js", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Add 'Export Save' to download save as JSON.",
+        "user_story": "As a player, I want to export my progress for backup or sharing.",
+        "use_case": "I select 'Export save…' and a JSON file downloads with a timestamped name; a short confirmation appears once the download starts.",
+        "feature_specification": "Trigger: menu command click. Conditions: save object available. Behavior: serialize to JSON; start download with title+timestamp filename; show confirmation or error. State: none. Acceptance: file valid JSON; error surfaced if blocked.",
+        "file_paths": [
+          { "path": "js/storage.js", "lines": "13-19" },
+          { "path": "index.html", "lines": null, "optional": true }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Auto-save every 60 seconds with visual pulse near Save menu.",
+        "user_story": "As a player, I want automatic saves at sensible intervals with a subtle indicator.",
+        "use_case": "Roughly every minute the game saves; the 'Saved:' label pulses briefly and the displayed time updates without modal dialogs.",
+        "feature_specification": "Trigger: 60s interval timer. Conditions: game loaded. Behavior: perform save; pulse/highlight 'Saved:' for ~500ms; update timestamp. State: persisted snapshot. Acceptance: no blocking UI; interval tolerance reasonable.",
+        "file_paths": [
+          { "path": "js/storage.js", "lines": "1-20" },
+          { "path": "css/style.css", "lines": null, "optional": true },
+          { "path": "index.html", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Helpers",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Improve niceNumber formatting for millions/billions.",
+        "user_story": "As a player, I want very large numbers to display compactly and consistently.",
+        "use_case": "Values ≥1,000,000 render with one decimal and M/B suffixes (trimming trailing .0) while preserving a leading minus sign for negatives.",
+        "feature_specification": "Trigger: number format call. Conditions: |value| ≥ 1e6. Behavior: 1-decimal compact with M/B; trim .0; preserve sign. State: none. Acceptance: no overflow in UI; matches Funding style.",
+        "file_paths": [
+          { "path": "js/helpers.js", "lines": "42-48" }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Clamp function: handle NaN inputs gracefully.",
+        "user_story": "As a developer, I want helper functions to be robust so UI elements don’t break from invalid input.",
+        "use_case": "When a NaN reaches the clamp helper, it returns the nearest boundary or a safe default instead of propagating NaN.",
+        "feature_specification": "Trigger: clamp(value,min,max) called. Conditions: value is NaN or invalid. Behavior: return min/max or safe default; document behavior. State: none. Acceptance: no NaN propagation; consistent across app.",
+        "file_paths": [
+          { "path": "js/helpers.js", "lines": "1-25" }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Analytics",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Track 'Achievement Unlocked' event with achievement name.",
+        "user_story": "As a developer, I want analytics for achievement unlocks to measure engagement.",
+        "use_case": "On unlock, an analytics event fires with category 'Achievements' (or similar), action 'Unlocked', and the achievement title as the label.",
+        "feature_specification": "Trigger: achievement state changes to completed. Conditions: not previously sent. Behavior: emit event {category, action, label}. State: de-dup guard. Acceptance: exactly one send per unlock.",
+        "file_paths": [
+          { "path": "js/analytics.js", "lines": "23-29" }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Track 'Pause toggled' in analytics.",
+        "user_story": "As a developer, I want to know how often players pause or resume.",
+        "use_case": "When the Pause control changes state, an event records action 'Pause toggled' with label 'Paused' or 'Resumed'.",
+        "feature_specification": "Trigger: pause state toggled. Conditions: UI control used. Behavior: send event with label reflecting state. State: none. Acceptance: exactly one event per toggle.",
+        "file_paths": [
+          { "path": "js/analytics.js", "lines": "48-54" }
+        ]
+      },
+      {
+        "tag": "addition",
+        "feature_desc": "Track 'Research Purchased' with research id.",
+        "user_story": "As a developer, I want to track which research items are bought and at what cost.",
+        "use_case": "On successful purchase, an event fires in the Research category with action 'Purchased', label set to the research title, and cost as a numeric value when available.",
+        "feature_specification": "Trigger: research purchase success. Conditions: purchase not duplicated. Behavior: emit {category: Research, action: Purchased, label: title, value: cost?}. State: none. Acceptance: one event per purchase.",
+        "file_paths": [
+          { "path": "js/analytics.js", "lines": "1-12" },
+          { "path": "js/app.js", "lines": null }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "Styles",
+    "features": [
+      {
+        "tag": "addition",
+        "feature_desc": "Add a .dark theme styles to swap colors.",
+        "user_story": "As a player, I want a dark theme that’s comfortable in low light while staying legible.",
+        "use_case": "I toggle dark mode and the app switches to higher-contrast text, adjusted backgrounds, and accessible link/button colors across the detector and charts.",
+        "feature_specification": "Trigger: theme toggle/system preference. Conditions: CSS vars/classes available. Behavior: apply dark palette; keep charts/detector readable. State: theme preference stored (if applicable). Acceptance: color contrast meets accessibility.",
+        "file_paths": [
+          { "path": "css/style.css", "lines": null }
+        ]
+      },
+      {
+        "tag": "modification",
+        "feature_desc": "Increase contrast for buttons for accessibility.",
+        "user_story": "As a player, I want buttons that remain readable under various lighting and vision conditions.",
+        "use_case": "Primary and hover states use higher-contrast foreground/background combinations; disabled buttons remain distinct but legible.",
+        "feature_specification": "Trigger: stylesheet update. Conditions: current palette insufficient contrast. Behavior: adjust button colors for normal/hover/disabled. State: none. Acceptance: meets WCAG contrast targets.",
+        "file_paths": [
+          { "path": "css/style.css", "lines": "146-152" }
+        ]
+      }
+    ]
+  },
+  {
+    "superfeature": "UI Helpers",
+    "features": [
+      {
+        "tag": "modification",
+        "feature_desc": "Show a confirmation dialog before 'Restart'.",
+        "user_story": "As a player, I want to confirm before losing progress.",
+        "use_case": "Selecting 'Restart' opens a confirmation with clear primary/secondary actions and warning text; restart proceeds only if I explicitly confirm.",
+        "feature_specification": "Trigger: 'Restart' selected. Conditions: dialog not already open. Behavior: show confirm with primary/secondary; dismiss on cancel/outside. State: none. Acceptance: restart only on explicit confirm; keyboard accessible.",
+        "file_paths": [
+          { "path": "index.html", "lines": "48-56" },
+          { "path": "js/ui.js", "lines": null, "optional": true }
+        ]
+      }
+    ]
+  }
+]

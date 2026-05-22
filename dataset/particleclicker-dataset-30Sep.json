@@ -554,7 +554,8 @@
         "use_case": "On unlock, an analytics event fires with category 'Achievements' (or similar), action 'Unlocked', and the achievement title as the label.",
         "feature_specification": "Trigger: achievement state changes to completed. Conditions: not previously sent. Behavior: emit event {category, action, label}. State: de-dup guard. Acceptance: exactly one send per unlock.",
         "file_paths": [
-          { "path": "js/analytics.js", "lines": "23-29" }
+          { "path": "js/gameobjects.js", "lines": "217-229" },
+          { "path": "js/analytics.js", "lines": "11-71", "optional": true }
         ]
       },
       {
